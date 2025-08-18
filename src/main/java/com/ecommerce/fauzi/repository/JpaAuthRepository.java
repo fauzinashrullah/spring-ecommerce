@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.ecommerce.fauzi.model.User;
 
-public interface JpaRepositoryImpl extends JpaRepository<User, UUID>{
+public interface JpaAuthRepository extends JpaRepository<User, UUID>{
     Optional<User> findByEmail(String email);
 }

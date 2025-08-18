@@ -15,7 +15,7 @@ import com.ecommerce.fauzi.dto.request.RegisterRequest;
 import com.ecommerce.fauzi.dto.response.LoginResponse;
 import com.ecommerce.fauzi.model.Role;
 import com.ecommerce.fauzi.model.User;
-import com.ecommerce.fauzi.repository.JpaRepositoryImpl;
+import com.ecommerce.fauzi.repository.JpaAuthRepository;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -25,7 +25,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private final JpaRepositoryImpl repository;
+    
+    private final JpaAuthRepository repository;
     private final PasswordEncoder encoder;
 
     public void register (RegisterRequest request){
