@@ -13,6 +13,7 @@ import lombok.Data;
 public class Product {
     @Id
     private UUID id;
+    private UUID sellerId;
     private String productName;
     private int price;
     private String description;

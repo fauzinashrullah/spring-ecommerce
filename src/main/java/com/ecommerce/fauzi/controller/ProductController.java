@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ecommerce.fauzi.dto.request.ProductRequest;
 import com.ecommerce.fauzi.dto.response.ApiResponse;
 import com.ecommerce.fauzi.dto.response.ProductResponse;
+import com.ecommerce.fauzi.service.MidtransService;
 import com.ecommerce.fauzi.service.ProductService;
 
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PutMapping;
 
 
@@ -61,4 +61,11 @@ public class ProductController {
         service.deleteProduct(productId);
         return ResponseEntity.ok(new ApiResponse<>(true, "Delete product success", Map.of()));
     }
+
+    @PostMapping("/checkout/{productId}")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> createTransaction(@PathVariable String productId) {
+        Map<String, Object> response = service.checkoutProduct(productId);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Checkout success", response));
+    }
+    
 }
