@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ecommerce.fauzi.dto.request.ProductRequest;
 import com.ecommerce.fauzi.dto.response.ApiResponse;
 import com.ecommerce.fauzi.dto.response.ProductResponse;
-import com.ecommerce.fauzi.service.MidtransService;
 import com.ecommerce.fauzi.service.ProductService;
 
 import lombok.RequiredArgsConstructor;

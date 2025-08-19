@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import com.ecommerce.fauzi.dto.request.LoginRequest;
 import com.ecommerce.fauzi.dto.request.RegisterRequest;
 import com.ecommerce.fauzi.dto.response.LoginResponse;
+import com.ecommerce.fauzi.exception.AlreadyExistException;
+import com.ecommerce.fauzi.exception.UnauthorizedException;
 import com.ecommerce.fauzi.model.Role;
 import com.ecommerce.fauzi.model.User;
 import com.ecommerce.fauzi.repository.JpaAuthRepository;
@@ -24,7 +26,7 @@ public class AuthService {
 
     public void register (RegisterRequest request){
         if(repository.findByEmail(request.getEmail()).isPresent()){
-            throw new RuntimeException("Email is already in use");
+            throw new AlreadyExistException("Email is already in use");
         }
         String hashPassword = hash(request.getPassword());
         UUID userId = UUID.randomUUID();
@@ -41,10 +43,10 @@ public class AuthService {
 
     public LoginResponse login (LoginRequest request){
         User user = repository.findByEmail(request.getEmail())
-            .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+            .orElseThrow(() -> new UnauthorizedException("Invalid email or password"));
         
         if (!verify(request.getPassword(), user.getPassword())){
-            throw new RuntimeException("Invalid email or password");
+            throw new UnauthorizedException("Invalid email or password");
         }
 
         String token = jwtProvider.generateToken(user.getId(), user.getEmail(), user.getRole().toString());

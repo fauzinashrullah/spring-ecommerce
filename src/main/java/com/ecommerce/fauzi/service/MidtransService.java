@@ -3,8 +3,10 @@ package com.ecommerce.fauzi.service;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -51,8 +53,13 @@ public class MidtransService {
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
 
-        ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
-
+        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                url,
+                HttpMethod.POST,
+                entity,
+                new ParameterizedTypeReference<Map<String, Object>>() {}
+        );
+        
         return response.getBody();
     }
 }

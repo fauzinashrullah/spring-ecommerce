@@ -12,6 +12,7 @@ import com.ecommerce.fauzi.dto.request.MidtransRequest;
 import com.ecommerce.fauzi.dto.request.ProductRequest;
 import com.ecommerce.fauzi.dto.response.ProductResponse;
 import com.ecommerce.fauzi.dto.response.UserResponse;
+import com.ecommerce.fauzi.exception.NotFoundException;
 import com.ecommerce.fauzi.model.Product;
 import com.ecommerce.fauzi.model.User;
 import com.ecommerce.fauzi.repository.JpaAuthRepository;
@@ -29,9 +30,7 @@ public class ProductService {
     private final MidtransService midtransService;
 
     public void createProduct(ProductRequest request){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        UUID userId = userDetails.getId();
+        UUID userId = getIdFromContextHolder();
 
         UUID productId = UUID.randomUUID();
         Product product = new Product();
@@ -58,24 +57,17 @@ public class ProductService {
     }
 
     public ProductResponse getDetailProduct(String productId){
-        Product product = repository.findById(UUID.fromString(productId))
-            .orElseThrow(() -> new RuntimeException("Product not found"));
-        if (product.isDeleted()) {
-            throw new RuntimeException("Product not found");
-        }
+        Product product = findProduct(productId);
         return new ProductResponse(product.getId(), product.getProductName(), product.getPrice(), product.getDescription());
     }
 
     public void updateProduct(String productId, ProductRequest request){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        UUID userId = userDetails.getId();
+        UUID userId = getIdFromContextHolder();
 
-        Product product = repository.findById(UUID.fromString(productId))
-            .orElseThrow(() -> new RuntimeException("Product not found"));
+        Product product = findProduct(productId);
 
-        if (product.isDeleted() || !product.getSellerId().equals(userId)) {
-            throw new RuntimeException("Product not found");
+        if (!product.getSellerId().equals(userId)) {
+            throw new NotFoundException("Product not found");
         }
 
         product.setProductName(request.getProductName());
@@ -85,15 +77,12 @@ public class ProductService {
     }
 
     public void deleteProduct(String productId){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        UUID userId = userDetails.getId();
+        UUID userId = getIdFromContextHolder();
 
-        Product product = repository.findById(UUID.fromString(productId))
-            .orElseThrow(() -> new RuntimeException("Product not found"));
+        Product product = findProduct(productId);
 
-        if (product.isDeleted() || !product.getSellerId().equals(userId)) {
-            throw new RuntimeException("Product not found");
+        if (!product.getSellerId().equals(userId)) {
+            throw new NotFoundException("Product not found");
         }
 
         product.setDeleted(true);
@@ -101,23 +90,36 @@ public class ProductService {
     }
 
     public Map<String, Object> checkoutProduct (String productId){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        UUID userId = userDetails.getId();
+        UUID userId = getIdFromContextHolder();
 
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new NotFoundException("User not found"));
 
-        Product product = repository.findById(UUID.fromString(productId))
-            .orElseThrow(() -> new RuntimeException("Product not found"));
+        Product product = findProduct(productId);
 
-        if (product.isDeleted() || !product.getSellerId().equals(userId)) {
-            throw new RuntimeException("Product not found");
+        if (!product.getSellerId().equals(userId)) {
+            throw new NotFoundException("Product not found");
         }
 
         ProductResponse productResponse = new ProductResponse(product.getId(), product.getProductName(), product.getPrice(), product.getDescription());
         UserResponse userResponse = new UserResponse(user.getName(), user.getEmail());
         
         return midtransService.createTransaction(new MidtransRequest(productResponse, userResponse));
+    }
+
+    private Product findProduct(String productId){
+        Product product = repository.findById(UUID.fromString(productId))
+            .orElseThrow(() -> new NotFoundException("Product not found"));
+
+        if (product.isDeleted()) {
+            throw new NotFoundException("Product not found");
+        }
+        return product;
+    }
+
+    private UUID getIdFromContextHolder(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        return userDetails.getId();
     }
 }
