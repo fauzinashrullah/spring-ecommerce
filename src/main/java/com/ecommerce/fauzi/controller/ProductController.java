@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,6 +32,7 @@ public class ProductController {
     
     private final ProductService service;
 
+    @PreAuthorize("hasRole('SELLER')")
     @PostMapping()
     public ResponseEntity<ApiResponse<?>> createProduct(@RequestBody ProductRequest request) {
         service.createProduct(request);
@@ -49,18 +51,21 @@ public class ProductController {
         return ResponseEntity.ok(new ApiResponse<>(true, "Get detail product success", response));
     }
     
+    @PreAuthorize("hasRole('SELLER')")
     @PutMapping("/{productId}")
     public ResponseEntity<ApiResponse<?>> updateProduct(@PathVariable String productId, @RequestBody ProductRequest request) {
         service.updateProduct(productId, request);
         return ResponseEntity.ok(new ApiResponse<>(true, "Update product success", Map.of()));
     }
 
+    @PreAuthorize("hasRole('SELLER')")
     @DeleteMapping("/{productId}")
     public ResponseEntity<ApiResponse<?>>  deleteProduct(@PathVariable String productId){
         service.deleteProduct(productId);
         return ResponseEntity.ok(new ApiResponse<>(true, "Delete product success", Map.of()));
     }
 
+    @PreAuthorize("hasRole('USER') or hasRole('SELLER')")
     @PostMapping("/checkout/{productId}")
     public ResponseEntity<ApiResponse<Map<String, Object>>> createTransaction(@PathVariable String productId) {
         Map<String, Object> response = service.checkoutProduct(productId);

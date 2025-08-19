@@ -2,6 +2,7 @@ package com.ecommerce.fauzi.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -29,13 +31,13 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/api/v1/product/**").permitAll()
-                .anyRequest().permitAll()
+                .anyRequest().authenticated()
+            )
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint(customAuthenticationEntryPoint)
+                .accessDeniedHandler(customAccessDeniedHandler)
                 )
-                .exceptionHandling(ex -> ex
-                    .authenticationEntryPoint(customAuthenticationEntryPoint)
-                    .accessDeniedHandler(customAccessDeniedHandler)
-                    )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
