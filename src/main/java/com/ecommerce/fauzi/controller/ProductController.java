@@ -8,6 +8,7 @@ import com.ecommerce.fauzi.dto.response.ApiResponse;
 import com.ecommerce.fauzi.dto.response.ProductResponse;
 import com.ecommerce.fauzi.service.ProductService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class ProductController {
 
     @PreAuthorize("hasRole('SELLER')")
     @PostMapping()
-    public ResponseEntity<ApiResponse<?>> createProduct(@RequestBody ProductRequest request) {
+    public ResponseEntity<ApiResponse<?>> createProduct(@Valid @RequestBody ProductRequest request) {
         service.createProduct(request);
         return ResponseEntity.ok(new ApiResponse<>(true, "Add product success", Map.of()));
     }
@@ -53,7 +54,7 @@ public class ProductController {
     
     @PreAuthorize("hasRole('SELLER')")
     @PutMapping("/{productId}")
-    public ResponseEntity<ApiResponse<?>> updateProduct(@PathVariable String productId, @RequestBody ProductRequest request) {
+    public ResponseEntity<ApiResponse<?>> updateProduct(@PathVariable String productId, @Valid @RequestBody ProductRequest request) {
         service.updateProduct(productId, request);
         return ResponseEntity.ok(new ApiResponse<>(true, "Update product success", Map.of()));
     }

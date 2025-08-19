@@ -9,6 +9,7 @@ import com.ecommerce.fauzi.dto.response.ApiResponse;
 import com.ecommerce.fauzi.dto.response.LoginResponse;
 import com.ecommerce.fauzi.service.AuthService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
@@ -26,13 +27,13 @@ public class AuthController {
     private final AuthService service;
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<?>> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<ApiResponse<?>> register(@Valid @RequestBody RegisterRequest request) {
         service.register(request);
         return ResponseEntity.ok(new ApiResponse<>(true, "Register success", Map.of()));
     }
     
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
         LoginResponse response = service.login(request);
         return ResponseEntity.ok(new ApiResponse<>(true, "Login success", response));
     }
